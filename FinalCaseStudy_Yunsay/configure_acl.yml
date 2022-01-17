@@ -1,0 +1,36 @@
+--- 
+- hosts: routers
+  gather_facts: false
+  connection: network_cli
+  become_method: enable
+
+  tasks:
+    - name: ACL Configuration for R1 (Deny of Guest Access to DEVASC)
+      when: ansible_host == "15.0.0.1"
+      ios_config:
+        parents: ip access-list standard DENY_GUEST_ACCESS_TO_DEVASC
+        lines: 
+          - deny 152.72.2.0 0.0.0.255
+          - permit any
+     
+    - name: ACL Access to Interface F0/0
+      when: ansible_host == "15.0.0.1"
+      ios_config: 
+        parents: interface FastEthernet0/0
+        lines:
+          - ip access-group DENY_GUEST_ACCESS_TO_DEVASC out
+ 
+    - name: ACL configuration for R3 (Deny Employee to Admin)
+      when: ansible_host == "20.0.0.2"
+      ios_config:
+        parents: ip access-list standard DENY_EMPLOYEE_TO_ADMIN
+        lines:
+          - deny 152.78.2.0 0.0.0.255
+          - permit any
+     
+    - name: ACL Access to Interface F0/1
+      when: ansible_host == "20.0.0.2"
+      ios_config:
+        parents: interface FastEthernet0/1
+        lines:
+          - ip access-group DENY_GUEST_ACCESS_TO_ADMIN out

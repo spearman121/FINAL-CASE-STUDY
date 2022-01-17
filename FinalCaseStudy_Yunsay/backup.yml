@@ -1,0 +1,25 @@
+--- 
+- name: Automatic Backup of Running-config for R1
+  hosts: R1
+  gather_facts: false
+  connection: network_cli
+  become_method: enable
+
+  vars:
+    cli:
+      username: cisco
+      password: cisco123
+      timeout: 100
+      auth_pass: class
+
+  tasks: 
+    - name: OSPF configuration for R1       
+      when: ansible_host == "15.0.0.1"       
+      ios_config: 
+        parents: router ospf 10         
+        lines: 
+          - router-id 1.1.1.1 
+          - network 192.168.1.0 0.0.0.255 area 0 
+          - network 15.0.0.0 0.0.0.3 area 0 
+          - network 20.0.0.0 0.0.0.3 area 0           
+          - passive-interface FastEthernet0/0
